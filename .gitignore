@@ -1,0 +1,99 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+.parcel-cache/
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large Media Files (>50MB excluded from git)
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+
+# FFmpeg binaries (too large)
+ffmpeg/bin/ffmpeg.exe
+ffmpeg/bin/ffprobe.exe
+ffmpeg/bin/ffplay.exe
+
+# Generated video output
+output/
+video/
+videos/
+temp_*/
+
+# Downloaded content
+content/videos/
+music/
+
+# Database
+*.db
+*.sqlite
+.env
+
+# Generated
+audio/*.mp3
+audio/*.wav
+output/*.mp4
+videos/tmp*
+temp_*
+.cache/
+
+# Database
+*.db
+reel_generator.db
+
+# Logs
+*.log
+server.log
+
+# Media files (large)
+music/*.wav
+music/*.mp3
+*.mov
+*.avi
