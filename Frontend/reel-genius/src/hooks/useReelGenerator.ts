@@ -2,7 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { ReelGeneration, DEFAULT_STEPS, GenerationStep } from '@/types/reel';
 import { useToast } from '@/components/ui/use-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Use environment variable if set, otherwise use current domain
+const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
 
 export function useReelGenerator() {
   const [generations, setGenerations] = useState<ReelGeneration[]>([]);
