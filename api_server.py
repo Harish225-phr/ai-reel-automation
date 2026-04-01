@@ -4,7 +4,7 @@ Provides /api/generate-reel endpoint with streaming progress updates
 With SQLite database for history tracking
 """
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, send_from_directory, send_file
 from flask_cors import CORS
 import json
 import subprocess
@@ -23,7 +23,11 @@ from database import (
     add_progress, get_video, get_all_videos, get_video_progress
 )
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder=str(Path(__file__).parent / "Frontend/reel-genius/dist"),
+    static_url_path=""
+)
 CORS(app)
 
 # Initialize database on startup
@@ -32,6 +36,7 @@ init_database()
 # Configuration
 OUTPUT_DIR = Path(__file__).parent / "output"
 VENV_PYTHON = Path(__file__).parent / ".venv" / "Scripts" / "python.exe"
+FRONTEND_DIST = Path(__file__).parent / "Frontend/reel-genius/dist"
 
 # Queue for streaming updates
 progress_queue = queue.Queue()
@@ -358,6 +363,36 @@ def health():
     """Health check endpoint"""
     print("[API] Health check received!", flush=True)
     return jsonify({'status': 'ok', 'service': 'ai-reel-generator'}), 200
+
+
+@app.route('/', methods=['GET'])
+def serve_root():
+    """Serve React frontend at root"""
+    dist_path = FRONTEND_DIST / 'index.html'
+    if dist_path.exists():
+        return send_file(str(dist_path))
+    return jsonify({'error': 'Frontend not found. Check if build exists at Frontend/reel-genius/dist'}), 404
+
+
+@app.route('/<path:path>', methods=['GET'])
+def serve_static(path):
+    """Serve static files from dist folder, fallback to index.html for SPA routing"""
+    # Don't intercept API routes
+    if path.startswith('api/'):
+        return jsonify({'error': f'API endpoint not found: /{path}'}), 404
+    
+    dist_path = FRONTEND_DIST / path
+    
+    # Check if file exists in dist
+    if dist_path.exists() and dist_path.is_file():
+        return send_file(str(dist_path))
+    
+    # For SPA routing - serve index.html for any unknown routes
+    index_path = FRONTEND_DIST / 'index.html'
+    if index_path.exists():
+        return send_file(str(index_path))
+    
+    return jsonify({'error': f'Not found: {path}'}), 404
 
 
 @app.route('/api/generate-reel', methods=['POST'])
