@@ -23,11 +23,7 @@ from database import (
     add_progress, get_video, get_all_videos, get_video_progress
 )
 
-app = Flask(
-    __name__,
-    static_folder=str(Path(__file__).parent / "Frontend/reel-genius/dist"),
-    static_url_path=""
-)
+app = Flask(__name__)
 CORS(app)
 
 # Initialize database on startup
@@ -36,7 +32,15 @@ init_database()
 # Configuration
 OUTPUT_DIR = Path(__file__).parent / "output"
 VENV_PYTHON = Path(__file__).parent / ".venv" / "Scripts" / "python.exe"
-FRONTEND_DIST = Path(__file__).parent / "Frontend/reel-genius/dist"
+FRONTEND_DIST = Path(__file__).parent / "Frontend" / "reel-genius" / "dist"
+
+# Debug: Check if frontend exists
+print(f"[API] Looking for frontend at: {FRONTEND_DIST}", flush=True)
+print(f"[API] Frontend exists: {FRONTEND_DIST.exists()}", flush=True)
+if FRONTEND_DIST.exists():
+    index_file = FRONTEND_DIST / "index.html"
+    print(f"[API] Index.html exists: {index_file.exists()}", flush=True)
+    print(f"[API] Dist contents: {list(FRONTEND_DIST.glob('*'))[:10]}", flush=True)
 
 # Queue for streaming updates
 progress_queue = queue.Queue()
@@ -368,10 +372,22 @@ def health():
 @app.route('/', methods=['GET'])
 def serve_root():
     """Serve React frontend at root"""
-    dist_path = FRONTEND_DIST / 'index.html'
-    if dist_path.exists():
-        return send_file(str(dist_path))
-    return jsonify({'error': 'Frontend not found. Check if build exists at Frontend/reel-genius/dist'}), 404
+    index_file = FRONTEND_DIST / 'index.html'
+    print(f"[API] Serving root - checking: {index_file}", flush=True)
+    print(f"[API] File exists: {index_file.exists()}", flush=True)
+    
+    if index_file.exists():
+        print(f"[API] ✓ Serving index.html", flush=True)
+        return send_file(str(index_file))
+    
+    print(f"[API] ✗ Frontend not found at {FRONTEND_DIST}", flush=True)
+    print(f"[API] Directory contents: {list(FRONTEND_DIST.iterdir()) if FRONTEND_DIST.exists() else 'DIR DOES NOT EXIST'}", flush=True)
+    return jsonify({
+        'error': 'Frontend not found',
+        'frontend_path': str(FRONTEND_DIST),
+        'exists': FRONTEND_DIST.exists(),
+        'message': 'The frontend build needs to be available. Ensure Frontend/reel-genius/dist/index.html exists.'
+    }), 404
 
 
 @app.route('/<path:path>', methods=['GET'])
