@@ -1,17 +1,12 @@
 #!/bin/bash
-# Startup script for Render deployment
+# Startup script for Render deployment - Ephemeral API
 
 set -e
 
 echo "[STARTUP] Creating necessary directories..."
-mkdir -p output
-mkdir -p audio
-mkdir -p videos
-mkdir -p images
-mkdir -p music
-mkdir -p scripts
+mkdir -p output audio videos images music scripts
 
 echo "[STARTUP] Directories ready"
-echo "[STARTUP] Starting API server with gunicorn..."
+echo "[STARTUP] Starting LIGHTWEIGHT Ephemeral API (no FFmpeg needed)..."
 
-exec gunicorn api_server:app --bind 0.0.0.0:$PORT --workers 1 --timeout 300 --access-logfile - --error-logfile -
+exec gunicorn api_server_ephemeral:app --bind 0.0.0.0:$PORT --workers 1 --timeout 300 --access-logfile - --error-logfile -
