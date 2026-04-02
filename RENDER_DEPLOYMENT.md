@@ -48,6 +48,60 @@ ai-reel-automation/
 │       └── .env.example            # API endpoint config
 │
 ├── .gitignore                      # Excludes node_modules, venv, etc
+├── Procfile                        # Render deployment process file
+└── render.yaml                     # Render service configuration
+
+---
+
+## 🚀 Quick Deployment to Render
+
+### Backend Deployment
+
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Ready for Render deployment"
+   git push origin main
+   ```
+
+2. **Create Backend Service on Render**:
+   - Go to [render.com](https://render.com)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the `ai-reel-automation` repo
+
+3. **Configure Service**:
+   - **Name**: `ai-reel-backend`
+   - **Environment**: Python 3.11
+   - **Build Command**: (automatic, uses Procfile)
+   - **Start Command**: (automatic, uses Procfile)
+
+4. **Add Environment Variables**:
+   ```
+   PIXABAY_API_KEY = 41652470-89fa37c975e9cffbf88627b9a
+   PEXELS_API_KEY = WpFsET9nVh30a0g2qOErgaePd7GuA7D8HKfOUFcaeLTJr6C6xHGT7nFv
+   HUGGINGFACEHUB_API_TOKEN = (your token)
+   ```
+
+5. **Deploy**: Click "Create Web Service"
+   - Build will take 5-10 minutes
+   - You'll get a URL: `https://ai-reel-backend.onrender.com`
+
+### Frontend Configuration
+
+1. **Update `.env.production`** in `Frontend/reel-genius/`:
+   ```env
+   VITE_API_URL=https://ai-reel-backend.onrender.com
+   ```
+
+2. **Commit and push**:
+   ```bash
+   git add Frontend/reel-genius/.env.production
+   git commit -m "Update backend API URL for production"
+   git push
+   ```
+
+3. **Frontend will auto-rebuild** on Render (if connected)
 ├── requirements.txt                # Backend Python deps
 └── README.md                       # This file
 ```

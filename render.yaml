@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ai-reel-backend
+    env: python
+    plan: standard
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
+    startCommand: "gunicorn api_server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 240"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.4
+      - key: FLASK_ENV
+        value: production
+      - key: PIXABAY_API_KEY
+        sync: false
+      - key: PEXELS_API_KEY
+        sync: false
+      - key: HUGGINGFACEHUB_API_TOKEN
+        sync: false
