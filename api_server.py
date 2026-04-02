@@ -114,8 +114,13 @@ def execute_reel_generation(prompt: str, language: str, request_id: str):
         
         # Set environment variables
         env = os.environ.copy()
-        env['PIXABAY_API_KEY'] = os.getenv('PIXABAY_API_KEY', '')
-        env['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN', '')
+        # Only set if they exist - don't override with empty strings
+        if os.getenv('PIXABAY_API_KEY'):
+            env['PIXABAY_API_KEY'] = os.getenv('PIXABAY_API_KEY')
+        if os.getenv('HUGGINGFACEHUB_API_TOKEN'):
+            env['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+        if os.getenv('PEXELS_API_KEY'):
+            env['PEXELS_API_KEY'] = os.getenv('PEXELS_API_KEY')
         env['PYTHONIOENCODING'] = 'utf-8'  # Force UTF-8 encoding
 
         # Run main_stable.py with prompt (STABILITY FIRST!)
