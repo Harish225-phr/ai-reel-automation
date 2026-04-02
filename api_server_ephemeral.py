@@ -9,19 +9,21 @@ from flask_cors import CORS
 import io
 import json
 import uuid
+import os
 from datetime import datetime
 from pathlib import Path
 
 from ephemeral_storage import EphemeralVideoManager, get_storage_stats
+from instagram_api import instagram_bp
 
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
-FRONTEND_DIST = Path(__file__).parent / "Frontend" / "reel-genius" / "dist"
+# Register Instagram API blueprint
+app.register_blueprint(instagram_bp)
 
-print(f"[EPHEMERAL API] Starting lightweight server...", flush=True)
-print(f"[EPHEMERAL API] Frontend at: {FRONTEND_DIST}", flush=True)
+print(f"[EPHEMERAL API] Starting lightweight backend...", flush=True)
+print(f"[EPHEMERAL API] Instagram Blueprint Routes: {[str(r) for r in app.url_map.iter_rules() if 'instagram' in str(r)]}", flush=True)
 
 
 @app.route('/health', methods=['GET'])
@@ -36,34 +38,30 @@ def health():
 
 
 @app.route('/', methods=['GET'])
-def serve_root():
-    """Serve React frontend at root"""
-    index_file = FRONTEND_DIST / 'index.html'
-    if index_file.exists():
-        return send_file(str(index_file))
-    
+def root():
+    """API root endpoint"""
     return jsonify({
-        'error': 'Frontend not available',
-        'message': 'Build frontend with: cd Frontend/reel-genius && npm run build'
-    }), 404
+        'service': 'AI Reel Generator - Backend API',
+        'version': '2.0-ephemeral',
+        'endpoints': {
+            'health': '/health',
+            'Instagram': '/api/instagram/*',
+            'Generate': '/api/generate-reel',
+            'Videos': '/api/videos'
+        }
+    }), 200
 
 
-@app.route('/<path:path>', methods=['GET'])
-def serve_static(path):
-    """Serve static files, fallback to index.html for SPA"""
-    if path.startswith('api/'):
-        return jsonify({'error': f'API endpoint not found: /{path}'}), 404
-    
-    dist_path = FRONTEND_DIST / path
-    if dist_path.exists() and dist_path.is_file():
-        return send_file(str(dist_path))
-    
-    # SPA fallback
-    index_path = FRONTEND_DIST / 'index.html'
-    if index_path.exists():
-        return send_file(str(index_path))
-    
-    return jsonify({'error': f'Not found: {path}'}), 404
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({'error': 'Endpoint not found'}), 404
+
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    """Handle 405 errors"""
+    return jsonify({'error': 'Method not allowed'}), 405
 
 
 @app.route('/api/generate-reel', methods=['POST'])
