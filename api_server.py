@@ -31,8 +31,21 @@ init_database()
 
 # Configuration
 OUTPUT_DIR = Path(__file__).parent / "output"
-VENV_PYTHON = Path(__file__).parent / ".venv" / "Scripts" / "python.exe"
+OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+
+# Detect Python executable path (Windows vs Linux/Render)
+import platform
+if platform.system() == "Windows":
+    VENV_PYTHON = Path(__file__).parent / ".venv" / "Scripts" / "python.exe"
+else:
+    # On Render/Linux, use system Python
+    VENV_PYTHON = Path("/usr/local/bin/python") or Path(sys.executable)
+
 FRONTEND_DIST = Path(__file__).parent / "Frontend" / "reel-genius" / "dist"
+
+print(f"[API] Platform: {platform.system()}", flush=True)
+print(f"[API] Python executable: {VENV_PYTHON}", flush=True)
+print(f"[API] OUTPUT_DIR: {OUTPUT_DIR}", flush=True)
 
 # Debug: Check if frontend exists
 print(f"[API] Looking for frontend at: {FRONTEND_DIST}", flush=True)
@@ -41,6 +54,8 @@ if FRONTEND_DIST.exists():
     index_file = FRONTEND_DIST / "index.html"
     print(f"[API] Index.html exists: {index_file.exists()}", flush=True)
     print(f"[API] Dist contents: {list(FRONTEND_DIST.glob('*'))[:10]}", flush=True)
+else:
+    print(f"[API] WARNING: Frontend not found at {FRONTEND_DIST}", flush=True)
 
 # Queue for streaming updates
 progress_queue = queue.Queue()
@@ -124,11 +139,15 @@ def execute_reel_generation(prompt: str, language: str, request_id: str):
         env['PYTHONIOENCODING'] = 'utf-8'  # Force UTF-8 encoding
 
         # Run main_stable.py with prompt (STABILITY FIRST!)
+        python_executable = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
         cmd = [
-            str(VENV_PYTHON),
+            python_executable,
             str(Path(__file__).parent / "main_stable.py"),
             prompt
         ]
+
+        print(f"[API] Using Python: {python_executable}", flush=True)
+        print(f"[API] Running command: {' '.join(cmd)}", flush=True)
 
         # Start process with output capture
         # CRITICAL: Close stdin to prevent hung subprocess waiting for input

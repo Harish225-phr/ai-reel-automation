@@ -1,0 +1,39 @@
+# Build artifacts
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+dist
+build
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.env.local
+
+# Development
+node_modules
+.next
+.nuxt
+
+# Large files
+videos/*.mp4
+output/*.mp4
+*.mp4
+*.mov
+
+# Cache
+.cache
+*.cache
+temp_*
+
+# Keep only critical folders and files
+!output/.gitkeep
+!assets/
+!ffmpeg/

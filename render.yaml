@@ -4,10 +4,9 @@ services:
     env: python
     plan: standard
     buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
-    startCommand: "gunicorn api_server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 240"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4
+        value: 3.11
       - key: FLASK_ENV
         value: production
       - key: PIXABAY_API_KEY
